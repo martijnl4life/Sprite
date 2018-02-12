@@ -25,6 +25,7 @@ Color Graphics::GetPixel( int x,int y ) const
 	return pSysBuffer[Graphics::ScreenWidth * y + x];
 }
 
+
 void dummy( Graphics& gfx )
 {
 	gfx.DrawSprite( 0,0,RectI{ 0,0,0,0 },RectI{ 0,0,0,0 },Surface{},SpriteEffect::Copy{} );

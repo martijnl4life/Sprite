@@ -22,6 +22,7 @@
 #include "Graphics.h"
 #include "DXErr.h"
 #include "ChiliException.h"
+#include "Geometry.h"
 #include <assert.h>
 #include <string>
 #include <array>
@@ -238,6 +239,196 @@ Graphics::Graphics( HWNDKey& key )
 	// allocate memory for sysbuffer (16-byte aligned for faster access)
 	pSysBuffer = reinterpret_cast<Color*>(
 		_aligned_malloc( sizeof( Color ) * Graphics::ScreenWidth * Graphics::ScreenHeight,16u ));
+}
+
+void Graphics::DrawCircle(int x, int y, int radius, Color c)
+{
+	const int rad_sq = radius * radius;
+	for (int y_loop = y - radius; y_loop < y + radius + 1; y_loop++)
+	{
+		for (int x_loop = x - radius; x_loop < x + radius + 1; x_loop++)
+		{
+			const int x_diff = x - x_loop;
+			const int y_diff = y - y_loop;
+			if (x_diff * x_diff + y_diff * y_diff <= rad_sq)
+			{
+				PutPixel(x_loop, y_loop, c);
+			}
+		}
+	}
+}
+void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
+{
+
+	int x, y, dx, dy, dx1, dy1, px, py, xe, ye, i;
+	dx = x2 - x1;
+	dy = y2 - y1;
+	dx1 = (int)fabs(dx);
+	dy1 = (int)fabs(dy);
+	px = 2 * dy1 - dx1;
+	py = 2 * dx1 - dy1;
+	if (dy1 <= dx1)
+	{
+		if (dx >= 0)
+		{
+			x = x1;
+			y = y1;
+			xe = x2;
+		}
+		else
+		{
+			x = x2;
+			y = y2;
+			xe = x1;
+		}
+		PutPixel(x, y, c);
+		for (i = 0; x<xe; i++)
+		{
+			x = x + 1;
+			if (px<0)
+			{
+				px = px + 2 * dy1;
+			}
+			else
+			{
+				if ((dx<0 && dy<0) || (dx>0 && dy>0))
+				{
+					y = y + 1;
+				}
+				else
+				{
+					y = y - 1;
+				}
+				px = px + 2 * (dy1 - dx1);
+			}
+			PutPixel(x, y, c);
+		}
+	}
+	else
+	{
+		if (dy >= 0)
+		{
+			x = x1;
+			y = y1;
+			ye = y2;
+		}
+		else
+		{
+			x = x2;
+			y = y2;
+			ye = y1;
+		}
+		PutPixel(x, y, c);
+		for (i = 0; y<ye; i++)
+		{
+			y = y + 1;
+			if (py <= 0)
+			{
+				py = py + 2 * dx1;
+			}
+			else
+			{
+				if ((dx<0 && dy<0) || (dx>0 && dy>0))
+				{
+					x = x + 1;
+				}
+				else
+				{
+					x = x - 1;
+				}
+				py = py + 2 * (dx1 - dy1);
+			}
+			PutPixel(x, y, c);
+		}
+	}
+}
+
+
+void Graphics::DrawLines(std::vector<Vec2> points, Color c)
+{
+	if (points.size() >= 2)
+	{
+		for (int i = 0; i < points.size() - 1; i++)
+		{
+			DrawLine(points[i], points[i + 1], Colors::White);
+		}
+	}
+}
+
+void Graphics::DrawShape(std::vector<Vec2> points, Color c)
+{
+	if (points.size() >= 2)
+	{
+		for (int i = 0; i < points.size() - 1; i++)
+		{
+			DrawLine(points[i], points[i + 1], Colors::White);
+		}
+	}
+	if (points.size() >= 3)
+	{
+		DrawLine(points.front(), points.back(), Colors::White);
+	}
+}
+
+void Graphics::FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c)
+{
+	float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+	float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+
+	float curx1 = v1.x;
+	float curx2 = v1.x;
+
+	for (int scanlineY = (int)v1.y; scanlineY <= v2.y; scanlineY++)
+	{
+		DrawLine((int)curx1, scanlineY, (int)curx2, scanlineY, c);
+		curx1 += invslope1;
+		curx2 += invslope2;
+	}
+}
+
+void Graphics::FillTopFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c)
+{
+	float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+	float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+
+	float curx1 = v3.x;
+	float curx2 = v3.x;
+
+	for (int scanlineY = (int)v3.y; scanlineY > v1.y; scanlineY--)
+	{
+		DrawLine((int)curx1, scanlineY, (int)curx2, scanlineY, c);
+		curx1 -= invslope1;
+		curx2 -= invslope2;
+	}
+}
+
+void Graphics::DrawTriangle(Vec2 p1, Vec2 p2, Vec2 p3, Color c)
+{
+	std::vector<Vec2> points = { p1, p2, p3 };
+	std::sort(points.begin(), points.end(), sortYvalue);
+	Vec2 v1 = points[0];
+	Vec2 v2 = points[1];
+	Vec2 v3 = points[2];
+
+	if (v2.y == v3.y)
+	{
+		FillBottomFlatTriangle(v1, v2, v3, c);
+	}
+	/* check for trivial case of top-flat triangle */
+	else if (v1.y == v2.y)
+	{
+		FillTopFlatTriangle(v1, v2, v3, c);
+	}
+	else
+	{
+		auto obj = geo::LineToLineSegmentIntersection(v2, Vec2(v2.x + 10, v2.y), v1, v3);
+		Vec2 v4 = obj.points[0];
+		/* general case - split the triangle in a topflat and bottom-flat one */
+		//Vec2 v4 = { (float)(v1.x + ((float)(v2.y - v1.y) / (float)(v3.y - v1.y)) * (v3.x - v1.x)), v2.y };
+
+		FillBottomFlatTriangle(v1, v2, v4, c);
+		FillTopFlatTriangle(v2, v4, v3, c);
+	}
 }
 
 Graphics::~Graphics()

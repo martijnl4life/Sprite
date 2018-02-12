@@ -109,7 +109,20 @@ public:
 			}
 		}
 	}
-
+	void DrawCircle(int x, int y, int radius, Color c);
+	void DrawLine(int x0, int y0, int x1, int y1, Color c);
+	void DrawLine(Vec2 pos0, Vec2 pos1, Color c)
+	{
+		DrawLine((int)pos0.x, (int)pos0.y, (int)pos1.x, (int)pos1.y, c);
+	}
+	void DrawLines(std::vector<Vec2> points, Color c);
+	void DrawShape(std::vector<Vec2> points, Color c);
+	void FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c);
+	void FillTopFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c);
+	void DrawTriangle(Vec2 p1, Vec2 p2, Vec2 p3, Color c);
+	struct sortYvalue {
+		bool operator() (Vec2 pt1, Vec2 pt2) { return (pt1.y < pt2.y); }
+	} sortYvalue;
 	~Graphics();
 private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
