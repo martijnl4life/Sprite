@@ -18,6 +18,10 @@ public:
 		x( (T)src.x ),
 		y( (T)src.y )
 	{}
+	bool operator==(const Vec2_& rhs)
+	{
+		return (x == rhs.x) && (y == rhs.y);
+	}
 	Vec2_ operator+( const Vec2_& rhs ) const
 	{
 		return Vec2_( x + rhs.x,y + rhs.y );

@@ -115,6 +115,10 @@ public:
 	{
 		DrawLine((int)pos0.x, (int)pos0.y, (int)pos1.x, (int)pos1.y, c);
 	}
+	void DrawLine(Vei2 pos0, Vei2 pos1, Color c)
+	{
+		DrawLine(pos0.x, pos0.y, pos1.x, pos1.y, c);
+	}
 	void DrawLines(std::vector<Vec2> points, Color c);
 	void DrawShape(std::vector<Vec2> points, Color c);
 	void FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c);

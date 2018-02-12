@@ -24,7 +24,9 @@
 #include "Mouse.h"
 #include "Graphics.h"
 #include "Surface.h"
-#include "Bencher.h"
+#include "Player.h"
+#include "LineSegment.h"
+#include "FrameTimer.h"
 
 class Game
 {
@@ -36,16 +38,11 @@ public:
 private:
 	void ComposeFrame();
 	void UpdateModel();
-	/********************************/
-	/*  User Functions              */
-	/********************************/
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-	/********************************/
-	/*  User Variables              */
-	std::vector<Vei2> positions;
-	Surface s = { "Images\\link90x90.bmp" };
-	Bencher bencher;
-	/********************************/
+	Player player;
+	FrameTimer ft;
+	std::vector<Vei2> buffer;
+	std::vector<LineSegment> walls;
 };

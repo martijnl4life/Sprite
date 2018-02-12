@@ -26,16 +26,15 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )
+	gfx( wnd ),
+	player(Vec2(300,300))
 {
-	std::mt19937 rng( 69 );
-	std::uniform_int_distribution<int> xd( 0,Graphics::ScreenWidth - s.GetWidth() - 1 );
-	std::uniform_int_distribution<int> yd( 0,Graphics::ScreenHeight - s.GetHeight() - 1 );
-
-	for( int i = 0; i < 50; i++ )
-	{
-		positions.push_back( { xd( rng ),yd( rng ) } );
-	}
+	walls.emplace_back(Vei2(200, 200), Vei2(300, 200));
+	
+	walls.emplace_back(Vei2(1, 1), Vei2(798, 1));
+	walls.emplace_back(Vei2(798, 1), Vei2(798, 598));
+	walls.emplace_back(Vei2(798, 598), Vei2(1, 598));
+	walls.emplace_back(Vei2(1, 598), Vei2(1, 1));
 }
 
 void Game::Go()
@@ -48,19 +47,20 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	float dt = ft.Mark();
+	player.Update(dt, wnd.kbd);
+	buffer = player.LineOfSight(walls);
 }
 
 void Game::ComposeFrame()
 {
-	bencher.Start();
-
-	for( const auto& pos : positions )
+	gfx.DrawCircle((int)player.GetPos().x, (int)player.GetPos().y, 7, Colors::Cyan);
+	for (auto w : walls)
 	{
-		gfx.DrawSprite( pos.x,pos.y,s,SpriteEffect::Copy{} );
+		gfx.DrawLine(w.p0, w.p1, Colors::White);
 	}
-
-	if( bencher.End() )
+	for (auto b : buffer)
 	{
-		OutputDebugString( (std::wstring( bencher ) + L"\n").c_str() );
+		gfx.DrawLine(Vei2(player.GetPos()), b, Colors::Red);
 	}
 }
