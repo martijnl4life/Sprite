@@ -13,7 +13,9 @@ public:
 	Player(Vec2& pos, Vec2& dir = Vec2(1, 0));
 	void Update(float dt, const Keyboard& kbd);
 	Vei2 raycasted(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 toPoint);
-	std::vector<Vei2> LineOfSight(std::vector<LineSegment> wallVertices);
+	Vei2 raycasted(std::vector<LineSegment> wallVertices, Vec2 direction);
+	std::vector<Vei2> LineOfSight(std::vector<LineSegment> wallVertices); 
+	std::vector<Vei2> LineOfSight2(std::vector<LineSegment> wallVertices);
 	Vec2 GetPos() const { return pos; }
 	void Draw(Graphics& gfx);
 private:

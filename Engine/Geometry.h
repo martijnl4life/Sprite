@@ -1,10 +1,72 @@
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 #include "Vec2.h"
+#include "Ray.h"
+#include "LineSegment.h"
 
 namespace geo
 {
+	struct Intersect
+	{
+		Intersect() = default;
+		Intersect(float x, float y, float param, bool intersect)
+			:
+			x(x),
+			y(y),
+			param(param),
+			DoesIntersect(intersect)
+		{}
+		Intersect(float angle)
+			:
+			angle(angle)
+		{}
+		Intersect(bool intersect)
+			:
+			DoesIntersect(intersect)
+		{}
+		float x;
+		float y;
+		float param;
+		float angle;
+		bool DoesIntersect;
+	};
+
+	static Intersect getIntersect(Ray ray, LineSegment segment)
+	{
+		const float r_px = (float)ray.p0.x;
+		const float r_py = (float)ray.p0.y;
+		const float r_dx = (float)ray.p1.x - r_px;
+		const float r_dy = (float)ray.p1.x - r_py;
+
+		const float s_px = (float)segment.p0.x;
+		const float s_py = (float)segment.p0.y;
+		const float s_dx = (float)segment.p1.x - s_px;
+		const float s_dy = (float)segment.p1.y - s_py;
+
+		const float r_mag = std::sqrtf(r_dx * r_dx + r_dy * r_dy);
+		const float s_mag = std::sqrtf(s_dx * s_dx + s_dy * s_dy);
+		if (r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag) return { Intersect(false) };
+
+		const float T2 = (r_dx*(s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx*r_dy - s_dy * r_dx);
+		const float T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+
+		if (T1 < 0)
+		{
+			return Intersect(false);
+		}
+		if (T2 < 0 || T2 > 1)
+		{
+			return Intersect(false);
+		}
+		return Intersect(r_px + r_dx * T1, r_px + r_dx * T1, T1, true);
+	}
+
+	static struct sortAnglevalue {
+		bool operator() (Intersect i1, Intersect i2) { return (i1.angle < i2.angle); }
+	} sortAnglevalue;
+
 	struct IntersectionObject
 	{
 		std::vector<Vec2> points;
