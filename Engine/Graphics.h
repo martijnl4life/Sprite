@@ -124,6 +124,10 @@ public:
 	void FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c);
 	void FillTopFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c);
 	void DrawTriangle(Vec2 p1, Vec2 p2, Vec2 p3, Color c);
+	void DrawTriangle(Vei2 p1, Vei2 p2, Vei2 p3, Color c)
+	{
+		DrawTriangle(Vec2(p1), Vec2(p2), Vec2(p3), c);
+	}
 	struct sortYvalue {
 		bool operator() (Vec2 pt1, Vec2 pt2) { return (pt1.y < pt2.y); }
 	} sortYvalue;

@@ -30,11 +30,15 @@ Game::Game( MainWindow& wnd )
 	player(Vec2(300,300))
 {
 	walls.emplace_back(Vei2(200, 200), Vei2(300, 200));
-	
+	walls.emplace_back(Vei2(200, 200), Vei2(323, 123));
+	walls.emplace_back(Vei2(321, 543), Vei2(656, 223));
+	walls.emplace_back(Vei2(221, 543), Vei2(556, 223));
+
 	walls.emplace_back(Vei2(1, 1), Vei2(798, 1));
 	walls.emplace_back(Vei2(798, 1), Vei2(798, 598));
 	walls.emplace_back(Vei2(798, 598), Vei2(1, 598));
 	walls.emplace_back(Vei2(1, 598), Vei2(1, 1));
+	light.AddLightsource(Vei2(300, 300));
 }
 
 void Game::Go()
@@ -49,18 +53,17 @@ void Game::UpdateModel()
 {
 	float dt = ft.Mark();
 	player.Update(dt, wnd.kbd);
-	buffer = player.LineOfSight(walls);
+	
+	light.lightSources.clear();
+	light.lightSources.emplace_back(player.GetPos());
 }
 
 void Game::ComposeFrame()
 {
+	light.Draw(walls, gfx);
 	gfx.DrawCircle((int)player.GetPos().x, (int)player.GetPos().y, 7, Colors::Cyan);
 	for (auto w : walls)
 	{
 		gfx.DrawLine(w.p0, w.p1, Colors::White);
-	}
-	for (auto b : buffer)
-	{
-		gfx.DrawLine(Vei2(player.GetPos()), b, Colors::Red);
 	}
 }

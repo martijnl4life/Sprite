@@ -27,6 +27,7 @@
 #include "Player.h"
 #include "LineSegment.h"
 #include "FrameTimer.h"
+#include "Light.h"
 
 class Game
 {
@@ -43,6 +44,7 @@ private:
 	Graphics gfx;
 	Player player;
 	FrameTimer ft;
+	Light light;
 	std::vector<Vei2> buffer;
 	std::vector<LineSegment> walls;
 };
