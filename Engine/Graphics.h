@@ -110,6 +110,11 @@ public:
 		}
 	}
 	void DrawCircle(int x, int y, int radius, Color c);
+	void DrawRect(int x0, int y0, int x1, int y1, Color c);
+	void DrawRectDim(int x0, int y0, int width, int height, Color c)
+	{
+		DrawRect(x0, y0, x0 + width, y0 + height, c);
+	}
 	void DrawLine(int x0, int y0, int x1, int y1, Color c);
 	void DrawLine(Vec2 pos0, Vec2 pos1, Color c)
 	{

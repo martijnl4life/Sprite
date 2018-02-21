@@ -28,6 +28,8 @@
 #include "LineSegment.h"
 #include "FrameTimer.h"
 #include "Light.h"
+#include "TerrainGenerator.h"
+#include "World.h"
 
 class Game
 {
@@ -42,9 +44,6 @@ private:
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-	Player player;
 	FrameTimer ft;
-	Light light;
-	std::vector<Vei2> buffer;
-	std::vector<LineSegment> walls;
+	World world;
 };
