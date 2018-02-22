@@ -27,7 +27,9 @@ Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
-	world(gfx)
+	world(gfx),
+	light(),
+	player(Vec2(100.0f,100.0f))
 {
 	world.SetTerrain(10, 100, 100);
 }
@@ -44,9 +46,14 @@ void Game::UpdateModel()
 {
 	float dt = ft.Mark();
 	world.Update(wnd.kbd);
+	light.lightSources.clear();
+	light.AddLightsource(Vei2(player.GetPos()));
+	player.Update(dt, wnd.kbd);
 }
 
 void Game::ComposeFrame()
 {
 	world.DrawTerrain();
+	light.Draw(world.GetWalls(), gfx);
+	player.Draw(gfx);
 }

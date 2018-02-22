@@ -20,6 +20,7 @@ void World::SetTerrain(int seed, int mapWidth, int mapHeight)
 
 	TerrainGenerator tg = TerrainGenerator(mapWidth, mapHeight, seed, 20, 4, 0.5, 2);
 	std::vector<float> noiseMap = tg.GenerateMap();
+	curLayerType = TerrainType::grass;
 
 	TerrainTypeMap.resize(mapWidth * mapHeight, TerrainType::rock);
 	LocalMaps.resize(widthVectorOfRects * heightVectorOfRects);
@@ -60,40 +61,72 @@ void World::SetTerrain(int seed, int mapWidth, int mapHeight)
 	curLocalPos = { widthVectorOfRects / 2, heightVectorOfRects / 2 };
 	curLocalRect = LocalMaps[widthVectorOfRects * curLocalPos.y + curLocalPos.x];
 	SetLayer(TerrainType::grass);
+	visible.CalculateWalls();
 }
 
 void World::Update(Keyboard & kbd)
 {
 	while (!kbd.KeyIsEmpty())
 	{
+		newWalls = false;
 		const Keyboard::Event e = kbd.ReadKey();
 		if (e.IsRelease())
 		{
-			if (e.GetCode() == 'A' && worldRectPos.Contains(curLocalPos + Vei2(-1, 0)))
+			if (e.GetCode() == 'J' && worldRectPos.Contains(curLocalPos + Vei2(-1, 0)))
 			{
 				curLocalPos += Vei2(-1, 0);
+				newWalls = true;
 			}
-			if (e.GetCode() == 'S' && worldRectPos.Contains(curLocalPos + Vei2(0, 1)))
+			if (e.GetCode() == 'K' && worldRectPos.Contains(curLocalPos + Vei2(0, 1)))
 			{
 				curLocalPos += Vei2(0, 1);
+				newWalls = true;
 			}
-			if (e.GetCode() == 'D' && worldRectPos.Contains(curLocalPos + Vei2(1, 0)))
+			if (e.GetCode() == 'L' && worldRectPos.Contains(curLocalPos + Vei2(1, 0)))
 			{
 				curLocalPos += Vei2(1, 0);
+				newWalls = true;
 			}
-			if (e.GetCode() == 'W' && worldRectPos.Contains(curLocalPos + Vei2(0, -1)))
+			if (e.GetCode() == 'I' && worldRectPos.Contains(curLocalPos + Vei2(0, -1)))
 			{
 				curLocalPos += Vei2(0, -1);
+				newWalls = true;
+			}
+			if (e.GetCode() == '1')
+			{
+				curLayerType = TerrainType::water;
+				newWalls = true;
+			}
+			if (e.GetCode() == '2')
+			{
+				curLayerType = TerrainType::sand;
+				newWalls = true;
+			}
+			if (e.GetCode() == '3')
+			{
+				curLayerType = TerrainType::grass;
+				newWalls = true;
+			}
+			if (e.GetCode() == '4')
+			{
+				curLayerType = TerrainType::rock;
+				newWalls = true;
 			}
 		}
 		curLocalRect = LocalMaps[widthVectorOfRects * curLocalPos.y + curLocalPos.x];
-		SetLayer(TerrainType::grass);
+		if (newWalls)
+		{
+			SetLayer(curLayerType);
+			visible.CalculateWalls();
+			newWalls = false;
+		}
 	}
 }
 
 void World::SetLayer(const TerrainType & type)
 {
-	visible.Clear();
+	visible.ClearRects();
+	visible.ClearWalls();
 	int yTemp = curLocalRect.top;
 	int xTemp = curLocalRect.left;
 	int xEnd = curLocalRect.left + curLocalRect.GetWidth();
@@ -123,24 +156,31 @@ void World::SetLayer(const TerrainType & type)
 	for (int j = 0, y = yTemp; y < yEnd; y++, j++) {
 		for (int i = 0, x = xTemp; x < xEnd; x++, i++) {
 			auto t = TerrainTypeMap[widthWorld * y + x];
-			if (t == TerrainType::grass)
+			if (t == type)
 			{
 				visible.AddRect(RectI(Vei2(TopLeftPos.x + (i*tileWidth), TopLeftPos.y + (j * tileHeight)), tileWidth, tileHeight));
 			}
 		}
 	}
-	visible.CalculateWalls(); 
 }
 
 void World::DrawTerrain()
 {
-	//visible.Draw(gfx);
-	//for (int y = curLocalRect.top, j = 0; y < curLocalRect.top + curLocalRect.GetHeight(); y++, j++) {
-	//	for (int x = curLocalRect.left, i = 0; x < curLocalRect.left + curLocalRect.GetWidth(); x++, i++) {
-	//		DrawCell(x, y, i, j);
-	//	}
-	//}
 	visible.DrawWalls(gfx, RectI(Vei2(TopLeftDraw.x, TopLeftDraw.y), tileWidth * localMapWidth, tileHeight * localMapHeight));
+}
+
+void World::DrawTerrainMap()
+{
+	for (int y = curLocalRect.top, j = 0; y < curLocalRect.top + curLocalRect.GetHeight(); y++, j++) {
+		for (int x = curLocalRect.left, i = 0; x < curLocalRect.left + curLocalRect.GetWidth(); x++, i++) {
+			DrawCell(x, y, i, j);
+		}
+	}
+}
+
+std::vector<LineSegment> World::GetWalls()
+{
+	return visible.GetWalls();
 }
 
 void World::DrawCell(int x, int y, int i, int j)

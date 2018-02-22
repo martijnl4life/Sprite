@@ -391,8 +391,8 @@ void Graphics::DrawShape(std::vector<Vec2> points, Color c)
 
 void Graphics::FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c)
 {
-	float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
-	float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
+	const float invslope1 = (v2.x - v1.x) / (v2.y - v1.y);
+	const float invslope2 = (v3.x - v1.x) / (v3.y - v1.y);
 
 	float curx1 = v1.x;
 	float curx2 = v1.x;
@@ -407,8 +407,8 @@ void Graphics::FillBottomFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c)
 
 void Graphics::FillTopFlatTriangle(Vec2 v1, Vec2 v2, Vec2 v3, Color c)
 {
-	float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
-	float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
+	const float invslope1 = (v3.x - v1.x) / (v3.y - v1.y);
+	const float invslope2 = (v3.x - v2.x) / (v3.y - v2.y);
 
 	float curx1 = v3.x;
 	float curx2 = v3.x;
@@ -425,25 +425,21 @@ void Graphics::DrawTriangle(Vec2 p1, Vec2 p2, Vec2 p3, Color c)
 {
 	std::vector<Vec2> points = { p1, p2, p3 };
 	std::sort(points.begin(), points.end(), sortYvalue);
-	Vec2 v1 = points[0];
-	Vec2 v2 = points[1];
-	Vec2 v3 = points[2];
+	const Vec2 v1 = points[0];
+	const Vec2 v2 = points[1];
+	const Vec2 v3 = points[2];
 
 	if (v2.y == v3.y)
 	{
 		FillBottomFlatTriangle(v1, v2, v3, c);
 	}
-	/* check for trivial case of top-flat triangle */
 	else if (v1.y == v2.y)
 	{
 		FillTopFlatTriangle(v1, v2, v3, c);
 	}
 	else
 	{
-		auto obj = geo::LineToLineSegmentIntersection(v2, Vec2(v2.x + 10, v2.y), v1, v3);
-		Vec2 v4 = obj.points[0];
-		/* general case - split the triangle in a topflat and bottom-flat one */
-		//Vec2 v4 = { (float)(v1.x + ((float)(v2.y - v1.y) / (float)(v3.y - v1.y)) * (v3.x - v1.x)), v2.y };
+		const Vec2 v4 = { (float)(v1.x + ((float)(v2.y - v1.y) / (float)(v3.y - v1.y)) * (v3.x - v1.x)), v2.y };
 
 		FillBottomFlatTriangle(v1, v2, v4, c);
 		FillTopFlatTriangle(v2, v4, v3, c);

@@ -46,4 +46,6 @@ private:
 	Graphics gfx;
 	FrameTimer ft;
 	World world;
+	Light light;
+	Player player;
 };

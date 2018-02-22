@@ -30,8 +30,8 @@ public:
 	Light() = default;
 public:
 	void AddLightsource(const Vei2& lightsource);
-	Vei2 RayCast(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 toPoint, const Vei2& lightSource);
-	std::vector<LightPoint> LineOfSight(std::vector<LineSegment> wallVertices,const Vei2& lightSource);
+	Vei2 RayCast(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 toPoint, const Vei2& lightSource) const;
+	std::vector<LightPoint> LineOfSight(std::vector<LineSegment> wallVertices,const Vei2& lightSource) const;
 	void Draw(std::vector<LineSegment> wallVertices, Graphics& gfx);
 	std::vector<Vei2> lightSources;
 private:

@@ -5,7 +5,7 @@ void Light::AddLightsource(const Vei2 & lightsource)
 	lightSources.emplace_back(lightsource);
 }
 
-Vei2 Light::RayCast(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 toPoint, const Vei2& lightSource)
+Vei2 Light::RayCast(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 toPoint, const Vei2& lightSource) const
 {
 	Vei2 closestPoint = toPoint;
 	for (int i = 0; i < wallVertices.size(); i++)
@@ -28,7 +28,7 @@ Vei2 Light::RayCast(std::vector<LineSegment> wallVertices, Vec2 direction, Vei2 
 	return closestPoint;
 }
 
-std::vector<LightPoint> Light::LineOfSight(std::vector<LineSegment> wallVertices, const Vei2 & lightSource)
+std::vector<LightPoint> Light::LineOfSight(std::vector<LineSegment> wallVertices, const Vei2 & lightSource) const
 {
 	std::vector<LightPoint> closestPoints;
 	std::vector<Vei2> checked;
@@ -69,10 +69,11 @@ std::vector<LightPoint> Light::LineOfSight(std::vector<LineSegment> wallVertices
 		Vei2 point3 = RayCast(wallVertices, (Vec2(Checked) - Vec2(lightSource)).GetNormalized().Rotate(-0.01f), Invalid, lightSource);
 
 		const float angle = std::atan2((float)Checked.y - lightSource.y, (float)Checked.x - lightSource.x);
+		if (!(point == Invalid))
 		closestPoints.emplace_back(point,angle);
-		if (!(point2 == point))
+		if (!(point2 == point) && !(point2 == Invalid))
 		closestPoints.emplace_back(point2,angle+0.0001f);
-		if (!(point3 == point))
+		if (!(point3 == point) && !(point3 == Invalid))
 		closestPoints.emplace_back(point3,angle-0.0001f);
 	}
 	return closestPoints;
